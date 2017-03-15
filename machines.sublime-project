@@ -1,0 +1,19 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns":[
+				"build"
+			]
+		},
+		{
+			"path": "build",
+			"folder_exclude_patterns":[
+				"categories",
+				"data",
+				"scripts",
+			]
+		}
+	]
+}

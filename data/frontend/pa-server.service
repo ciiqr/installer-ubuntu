@@ -1,0 +1,8 @@
+[Unit]
+Description=WAV: PulseAudio Update daemon
+After=dbus.target
+
+[Service]
+ExecStart=REPLACE_USER_HOME/.local/bin/pa-server.py
+Restart=always
+Type=simple

@@ -1,0 +1,8 @@
+# SpaceFM As-Root Session File
+
+# THIS FILE IS NOT DESIGNED TO BE EDITED
+
+
+root_editor-s=subl -n %F
+main_terminal-s=xterm
+main_terminal-b=2

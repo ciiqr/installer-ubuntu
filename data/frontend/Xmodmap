@@ -1,0 +1,14 @@
+!NOTES:
+!! List
+!! xmodmap -pk
+!! xmodmap -pke
+
+! Disable
+!! KP_INSERT
+keycode 90 =
+!! Caps Lock
+keycode 66 = Hyper_L
+
+!! Insert
+!keycode 118 =
+
