@@ -149,6 +149,9 @@ cp /data/61-libinput-options.conf /usr/share/X11/xorg.conf.d/61-libinput-options
 # 	Comment=Default Cursor Theme
 # 	Inherits=oxy-obsidian-hc
 
+# For Network Manager access
+usermod -a -G "netdev" "$passwd_username"
+
 su "$passwd_username" <<EOF
 
 # Default applications
