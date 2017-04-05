@@ -5,6 +5,8 @@
 
 categories="$1"
 
+ppa ubuntu-desktop/ubuntu-make
+
 
 # General
 install build-essential
@@ -12,6 +14,9 @@ install git
 install cloc
 install vagrant virtualbox
 install pkg-config
+
+install ubuntu-make
+# TODO: automate?: `umake swift`
 
 # Python
 install bpython bpython3
