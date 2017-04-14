@@ -12,10 +12,12 @@ if [ ${priv_conf[@]+isset} ]; then
 	deluge_username="`array_get_first_set priv_conf deluge_username common_username || echo "$passwd_username"`"
 	samba_username="`array_get_first_set priv_conf samba_username common_username || echo "$passwd_username"`"
 	nfs_username="`array_get_first_set priv_conf nfs_username common_username || echo "$passwd_username"`"
+	dlna_username="`array_get_first_set priv_conf dlna_username common_username || echo "$passwd_username"`"
 else
 	deluge_username="$passwd_username"
 	samba_username="$passwd_username"
 	nfs_username="$passwd_username"
+	dlna_username="$passwd_username"
 fi
 
 # Create group
@@ -106,3 +108,30 @@ tee "/etc/exports" > /dev/null <<EOF
 /srv  *(rw,async,all_squash,anonuid=$nfs_uid,anongid=$nfs_gid,subtree_check)
 
 EOF
+
+
+
+# dlna
+install minidlna
+
+replace_or_append /etc/default/minidlna '[# ]*USER=' 'USER="'"$dlna_username"'"'
+replace_or_append /etc/default/minidlna '[# ]*GROUP=' 'GROUP="'"$common_group"'"'
+
+sed -i 's:^media_dir=\(.*\):# media_dir=\1:' /etc/minidlna.conf
+tee -a /etc/minidlna.conf > /dev/null <<EOF
+
+media_dir=V,/srv/media/Movies
+media_dir=V,/srv/media/Shows
+
+media_dir=A,/srv/media/Music
+media_dir=A,/srv/media/Sorted-Music
+media_dir=A,/srv/media/UMusic
+
+media_dir=/srv/deluge/Downloads
+media_dir=/srv/deluge/Incomplete
+
+EOF
+
+
+# sysctl
+cp /data/sysctl.conf /etc/sysctl.d/100-sysctl.conf
