@@ -117,6 +117,10 @@ install minidlna
 replace_or_append /etc/default/minidlna '[# ]*USER=' 'USER="'"$dlna_username"'"'
 replace_or_append /etc/default/minidlna '[# ]*GROUP=' 'GROUP="'"$common_group"'"'
 
+dlna_user_home="`eval echo "~$dlna_username"`"
+replace_or_append /etc/minidlna.conf '[# ]*db_dir=' 'db_dir='"`echo "$dlna_user_home"'/.config/minidlna/cache' | escape_for_sed`"
+replace_or_append /etc/minidlna.conf '[# ]*log_dir=' 'log_dir='"`echo "$dlna_user_home"'/.config/minidlna' | escape_for_sed`"
+
 sed -i 's:^media_dir=\(.*\):# media_dir=\1:' /etc/minidlna.conf
 tee -a /etc/minidlna.conf > /dev/null <<EOF
 

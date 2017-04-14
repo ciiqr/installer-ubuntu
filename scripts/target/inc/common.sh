@@ -14,6 +14,11 @@ replace_or_append()
 	sed -i '/^'"$match_line"'/{h;s/.*/'"$replace_line"'/};${x;/^$/{s//'"$replace_line"'/;H};x}' "$1"
 }
 
+escape_for_sed()
+{
+    sed -e 's@/@\\\/@g'
+}
+
 source_priv_conf()
 {
 	declare priv_conf_dir='/data/private-config'
