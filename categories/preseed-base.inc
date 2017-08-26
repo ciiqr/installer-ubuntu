@@ -32,6 +32,10 @@ d-i hw-detect/load_firmware boolean true
 
 ### Mirror settings
 d-i mirror/country string ca
+# TODO: Idk which of these disabled the proxy prompt while installing, but one it was certainly one of these
+d-i mirror/http/proxy string
+choose-mirror-bin mirror/ftp/proxy string
+choose-mirror-bin mirror/http/proxy string
 
 
 ### Account setup

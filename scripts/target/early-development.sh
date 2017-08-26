@@ -5,21 +5,28 @@
 
 categories="$1"
 
-ppa ubuntu-desktop/ubuntu-make
-
 
 # General
 install build-essential
 install git
 install cloc
-install vagrant virtualbox
 install pkg-config
 
-install ubuntu-make
-# TODO: automate?: `umake swift`
+# Vagrant (w/nfs support)
+install vagrant virtualbox
+	# TODO: Test out installing from deb, something like this
+	# version="1.9.0"
+	# wget -O vagrant-"$version".deb https://releases.hashicorp.com/vagrant/"$version"/vagrant_"$version"_x86_64.deb
+	# sudo dpkg -i vagrant-"$version".deb
+	# sudo apt-get install -f
+install nfs-common nfs-kernel-server
+
+# For Swift perfect framework
+install openssl libssl-dev uuid-dev
 
 # Python
 install bpython bpython3
+install python-virtualenv python3-virtualenv virtualenv
 
 # Coffeescript
 # install coffeescript
@@ -51,11 +58,38 @@ install valgrind
 # Strace
 install strace
 
-# Packer
-install packer
-
 # Custom Ubuntu install things
 install debconf-utils genisoimage
+
+# Hashicorp suite
+declare -A hashi_packages=(
+	[terraform]="0.9.5"
+	[packer]="1.0.0"
+)
+
+for hashi_package in "${!hashi_packages[@]}"; do
+	declare version="${hashi_packages[$hashi_package]}"
+
+	# Download
+	wget "https://releases.hashicorp.com/${hashi_package}/${version}/${hashi_package}_${version}_linux_amd64.zip" -O "$hashi_package.zip"
+
+	# Install
+	sudo mkdir -p "/opt/$hashi_package"
+	sudo unzip -o "$hashi_package.zip" -d "/opt/$hashi_package"
+
+	# Delete zip
+	rm "$hashi_package.zip"
+
+	# Add to PATH
+	tee "/etc/profile.d/$hashi_package.sh" > /dev/null <<EOF
+
+	export PATH="/opt/$hashi_package:\$PATH"
+
+EOF
+
+done
+
+# TODO: Install swift via deb
 
 # Frontend only
 if contains_option frontend "$categories"; then

@@ -152,7 +152,7 @@ cp /data/61-libinput-options.conf /usr/share/X11/xorg.conf.d/61-libinput-options
 # For Network Manager access
 usermod -a -G "netdev" "$passwd_username"
 
-su "$passwd_username" <<EOF
+su "$passwd_username" <<"EOF"
 
 # Default applications
 sh /scripts/default-applications.sh
@@ -169,6 +169,7 @@ sed 's:REPLACE_USER_HOME:'"$HOME"':' /data/gtk2-settings.rc > ~/.gtkrc-2.0
 
 # X Configs
 cp /data/xinitrc ~/.xinitrc
+chmod +x ~/.xinitrc
 cp /data/xbindkeysrc ~/.xbindkeysrc
 cp /data/Xmodmap ~/.Xmodmap
 # TODO: ...
@@ -184,6 +185,7 @@ cat /data/Xresources-* >> ~/.Xresources
 sed 's:REPLACE_USER_HOME:'"$HOME"':' /data/dmrc > ~/.dmrc
 
 # Install my awesome config
+# TODO: This and dotfiles should be cloned with ssh OR cloned like this and changed to ssh after (if necessary)
 git clone https://github.com/ciiqr/awesome.git ~/.config/awesome
 
 

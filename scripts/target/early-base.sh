@@ -38,6 +38,7 @@ install zip unzip
 install traceroute
 install fdupes
 install ntp
+install jq
 
 # Hardware info
 install lshw

@@ -55,9 +55,8 @@ parse_cli_args()
 set_cli_args_default
 parse_cli_args "$@" || exit $?
 
-# BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/ubuntu-server/xenial/daily/current/xenial-server-amd64.iso"
 BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
-# BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/ubuntu-server/daily/current/zesty-server-amd64.iso"
+# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
 BUILD_ISO_PATH="original.iso"
 BUILD_ISO_MOUNT_DIR="iso-temp"
 
