@@ -29,8 +29,9 @@ install `ubuntu-drivers list`
 # xorg
 install xorg
 
-# xterm
+# terminals
 install xterm
+install rxvt-unicode
 
 
 # Awesome
