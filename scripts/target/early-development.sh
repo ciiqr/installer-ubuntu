@@ -63,8 +63,8 @@ install debconf-utils genisoimage
 
 # Hashicorp suite
 declare -A hashi_packages=(
-	[terraform]="0.9.5"
-	[packer]="1.0.0"
+	[terraform]="0.10.2"
+	[packer]="1.0.4"
 )
 
 for hashi_package in "${!hashi_packages[@]}"; do
