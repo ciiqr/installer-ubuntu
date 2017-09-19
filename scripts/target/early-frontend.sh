@@ -12,6 +12,7 @@ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-ke
 echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee -a /etc/apt/sources.list.d/google.list > /dev/null
 
 # Add ppa's
+# TODO: This isn't working on my desktop (need to change it to explicitly specify the xenial version of the repo...)
 ppa klaus-vormweg/awesome
 ppa webupd8team/sublime-text-3
 ppa noobslab/icons
