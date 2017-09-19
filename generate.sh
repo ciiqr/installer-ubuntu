@@ -210,10 +210,8 @@ echo en | sudo tee "$BUILD_IMAGE_DIR/isolinux/lang" > /dev/null
 
 
 # Generate iso
-sudo mkisofs -r -V "$ISO_LABEL" \
-    -cache-inodes -quiet \
-    -J -l -b isolinux/isolinux.bin \
-    -c isolinux/boot.cat -no-emul-boot \
-    -boot-load-size 4 -boot-info-table \
-    -input-charset utf-8 \
-    -o "$ISO_PATH" "$BUILD_IMAGE_DIR"
+sudo xorriso -as mkisofs -r -V "$ISO_LABEL" \
+    -isohybrid-mbr image/isolinux/isolinux.bin \
+    -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 \
+    -boot-info-table -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot \
+    -isohybrid-gpt-basdat -o "$ISO_PATH" "$BUILD_IMAGE_DIR"

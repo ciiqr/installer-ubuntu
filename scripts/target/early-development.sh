@@ -59,7 +59,8 @@ install valgrind
 install strace
 
 # Custom Ubuntu install things
-install debconf-utils genisoimage
+install debconf-utils genisoimage xorriso
+# TODO: Maybe also syslinux syslinux-common
 
 # Hashicorp suite
 declare -A hashi_packages=(
