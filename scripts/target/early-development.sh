@@ -19,6 +19,7 @@ install vagrant virtualbox
 	# wget -O vagrant-"$version".deb https://releases.hashicorp.com/vagrant/"$version"/vagrant_"$version"_x86_64.deb
 	# sudo dpkg -i vagrant-"$version".deb
 	# sudo apt-get install -f
+	# TODO: Likely need these? ruby/ruby-dev/ruby2.3-dev
 install nfs-common nfs-kernel-server
 
 # For Swift perfect framework
