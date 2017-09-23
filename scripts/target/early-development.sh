@@ -12,16 +12,6 @@ install git
 install cloc
 install pkg-config
 
-# Vagrant (w/nfs support)
-install vagrant virtualbox
-	# TODO: Test out installing from deb, something like this
-	# version="1.9.0"
-	# wget -O vagrant-"$version".deb https://releases.hashicorp.com/vagrant/"$version"/vagrant_"$version"_x86_64.deb
-	# sudo dpkg -i vagrant-"$version".deb
-	# sudo apt-get install -f
-	# TODO: Likely need these? ruby/ruby-dev/ruby2.3-dev
-install nfs-common nfs-kernel-server
-
 # For Swift perfect framework
 install openssl libssl-dev uuid-dev
 
@@ -62,6 +52,14 @@ install strace
 # Custom Ubuntu install things
 install debconf-utils genisoimage xorriso
 # TODO: Maybe also syslinux syslinux-common
+
+# Vagrant (w/nfs support)
+install virtualbox
+install nfs-common nfs-kernel-server
+vagrant_version="1.9.0"
+wget -O vagrant-"$vagrant_version".deb https://releases.hashicorp.com/vagrant/"$vagrant_version"/vagrant_"$vagrant_version"_x86_64.deb
+sudo dpkg -i vagrant-"$vagrant_version".deb
+sudo apt-get install -f
 
 # Hashicorp suite
 declare -A hashi_packages=(
