@@ -71,6 +71,9 @@ sensors-detect --auto
 # Switch to zsh
 sudo chsh -s /bin/zsh "$passwd_username"
 
+# Make sure zsh works properly... sigh ubuntu
+echo "emulate sh -c 'source /etc/profile'" > /etc/zsh/zprofile
+
 # Password less sudo
 tee "/etc/sudoers.d/$passwd_username" > /dev/null <<EOF
 
