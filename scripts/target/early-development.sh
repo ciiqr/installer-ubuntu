@@ -11,6 +11,7 @@ install build-essential
 install git
 install cloc
 install pkg-config
+install sloccount
 
 # For Swift perfect framework
 install openssl libssl-dev uuid-dev
