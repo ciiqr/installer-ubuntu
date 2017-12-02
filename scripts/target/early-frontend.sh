@@ -16,6 +16,7 @@ echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sud
 ppa klaus-vormweg/awesome
 ppa webupd8team/sublime-text-3
 ppa noobslab/icons
+# TODO: if I care: ppa mozillateam/firefox-next (but we need to specify xenial...)
 
 # Update new repos
 sudo apt-get update

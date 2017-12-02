@@ -13,6 +13,9 @@ install cloc
 install pkg-config
 install sloccount
 
+# Shell
+install shellcheck
+
 # For Swift perfect framework
 install openssl libssl-dev uuid-dev
 
