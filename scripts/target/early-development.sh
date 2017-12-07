@@ -20,8 +20,27 @@ install shellcheck
 install openssl libssl-dev uuid-dev
 
 # Python
+install python3.6
 install bpython bpython3
+install python-pip python3-pip
+install python-dev python3-dev
+install python-setuptools python3-setuptools
+
+# TODO: maybe move these to pip...
 install python-virtualenv python3-virtualenv virtualenv
+
+# update pip
+pip2 install --upgrade pip
+pip3 install --upgrade pip
+
+# update pip
+pip2 install --upgrade setuptools
+pip3 install --upgrade setuptools
+
+# TODO: as the user? or just do global... though user may be safer, even for the above...
+# pip2 install --user pipenv
+# pip3 install --user pipenv
+
 
 # Coffeescript
 # install coffeescript
@@ -92,6 +111,24 @@ for hashi_package in "${!hashi_packages[@]}"; do
 EOF
 
 done
+
+# godot
+godot_version="2.1.4"
+wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/Godot_v${godot_version}-stable_x11.64.zip"
+sudo mkdir -p "/opt/godot"
+sudo unzip -o godot.zip -d "/opt/godot"
+rm "godot.zip"
+sudo tee "/usr/share/applications/godot.desktop" >/dev/null <<EOF
+
+[Desktop Entry]
+Name=Godot
+Comment=Godot game engine
+Exec=/opt/godot/Godot_v$godot_version-stable_x11.64
+Terminal=false
+Type=Application
+StartupNotify=true
+
+EOF
 
 # TODO: Install swift via deb
 
