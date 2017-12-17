@@ -113,8 +113,14 @@ EOF
 done
 
 # godot
-godot_version="2.1.4"
-wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/Godot_v${godot_version}-stable_x11.64.zip"
+# godot_version="2.1.4"
+# godot_release="stable"
+godot_version="3.0"
+godot_release="beta1"
+if [[ "$godot_release" != 'stable' ]]; then
+	godot_subdir="$godot_release/"
+fi
+wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/${godot_subdir}Godot_v${godot_version}-${godot_release}_x11.64.zip"
 sudo mkdir -p "/opt/godot"
 sudo unzip -o godot.zip -d "/opt/godot"
 rm "godot.zip"
@@ -123,7 +129,7 @@ sudo tee "/usr/share/applications/godot.desktop" >/dev/null <<EOF
 [Desktop Entry]
 Name=Godot
 Comment=Godot game engine
-Exec=/opt/godot/Godot_v$godot_version-stable_x11.64
+Exec=/opt/godot/Godot_v$godot_version-${godot_release}_x11.64
 Terminal=false
 Type=Application
 StartupNotify=true
