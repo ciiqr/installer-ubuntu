@@ -86,8 +86,8 @@ sudo apt-get install -f
 
 # Hashicorp suite
 declare -A hashi_packages=(
-	[terraform]="0.10.2"
-	[packer]="1.0.4"
+	[terraform]="0.10.8"
+	[packer]="1.1.1"
 )
 
 for hashi_package in "${!hashi_packages[@]}"; do
@@ -116,11 +116,11 @@ done
 # godot_version="2.1.4"
 # godot_release="stable"
 godot_version="3.0"
-godot_release="beta1_mono"
+godot_release="beta2_mono"
 if [[ "$godot_release" != 'stable' ]]; then
 	godot_subdir="${godot_release/_//}/"
 fi
-wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/${godot_subdir}Godot_v${godot_version}-${godot_release}_x11.64.zip"
+wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/${godot_subdir}Godot_v${godot_version}-${godot_release}_x11.64.zip" || wget -O godot.zip "https://downloads.tuxfamily.org/godotengine/${godot_version}/${godot_subdir}Godot_v${godot_version}-${godot_release}_x11_64.zip"
 sudo mkdir -p "/opt/godot"
 sudo unzip -o godot.zip -d "/opt/godot"
 rm "godot.zip"
