@@ -98,7 +98,6 @@ d-i finish-install/reboot_in_progress note
 
 ### Running custom commands during the installation
 d-i preseed/late_command string log-output sh /cdrom/scripts/late.sh
-d-i preseed/early_command string log-output sh /cdrom/scripts/early.sh
 
 ### Includes
 d-i preseed/include string generated-preseed-base.inc

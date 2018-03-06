@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
 # usage:
-# ./generate.sh --private-config ~/.private-config --default-machine server-data --build d
+# ./generate.sh --default-machine server-data --build d
 
 set_cli_args_default()
 {
     BUILD_MODE=''
     IMAGE_DEFAULT_MACHINE="server-data"
     private_config_dir=''
+    configDir="/config"
+    privateConfigDir="/config-private"
 }
 
 parse_cli_args()
@@ -16,6 +18,14 @@ parse_cli_args()
         local arg="$1"
 
         case $arg in
+            --configDir)
+                configDir="${2%/}"
+                shift
+            ;;
+            --privateConfigDir)
+                privateConfigDir="${2%/}"
+                shift
+            ;;
             --private-config)
                 private_config_dir="$(readlink -f "$2")"
                 shift
@@ -55,8 +65,10 @@ parse_cli_args()
 set_cli_args_default
 parse_cli_args "$@" || exit $?
 
-BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
+BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
+# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
 # BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
+# BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/daily-live/current/bionic-desktop-amd64.iso"
 BUILD_ISO_PATH="original.iso"
 BUILD_ISO_MOUNT_DIR="iso-temp"
 
@@ -108,8 +120,12 @@ sudo cp -r "../categories" "$BUILD_IMAGE_DIR/categories"
 sudo cp -r "../scripts" "$BUILD_IMAGE_DIR/scripts"
 sudo cp -r "../data" "$BUILD_IMAGE_DIR/data"
 
-if [[ -d "$private_config_dir" ]]; then
-    sudo cp -r "$private_config_dir" "$BUILD_IMAGE_DIR/data/base/private-config"
+if [[ -d "$configDir" ]]; then
+    sudo rsync -ra --delete "$configDir/" "$BUILD_IMAGE_DIR/data/config"
+fi
+
+if [[ -d "$privateConfigDir" ]]; then
+    sudo rsync -ra --delete "$privateConfigDir/" "$BUILD_IMAGE_DIR/data/config-private"
 fi
 
 # Generate categories

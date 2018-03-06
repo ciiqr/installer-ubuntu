@@ -16,26 +16,9 @@ apt-get update
 
 # Run any category specific early scripts
 for category in $categories; do
+	echo "===================== run target early $category ====================="
 	declare category_script_path="/scripts/early-$category.sh"
 	[[ -f "$category_script_path" ]] && bash "$category_script_path" "$categories" "$passwd_username"
-
-	declare priv_category_script_path="/data/private-config/$category/machines-target-early.sh"
-	[[ -f "$priv_category_script_path" ]] && bash "$priv_category_script_path" "$categories" "$passwd_username"
 done || true
-
-# TODO: Maybe have a separate step for installing packages (between early and late) (and simply deplay all package installs from early-*sh)
-
-# Run any category specific late scripts
-for category in $categories; do
-	declare category_script_path="/scripts/late-$category.sh"
-	[[ -f "$category_script_path" ]] && bash "$category_script_path" "$categories" "$passwd_username"
-
-	declare priv_category_script_path="/data/private-config/$category/machines-target-late.sh"
-	[[ -f "$priv_category_script_path" ]] && bash "$priv_category_script_path" "$categories" "$passwd_username"
-done || true
-
-# TODO: Install firstboot script... Need to pass along categories...
-# http://www.50ply.com/blog/2012/07/16/automating-debian-installs-with-preseed-and-puppet/
-# TODO: Maybe delete target /data within the firstboot script...
 
 echo "===================== done target.sh ====================="

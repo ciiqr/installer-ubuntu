@@ -24,11 +24,22 @@ for category in $categories; do
 	fi
 done || true
 
-# Run any category specific late scripts
-for category in $categories; do
-	category_script_path="/cdrom/scripts/late-$category.sh"
-	[ -f "$category_script_path" ] && sh "$category_script_path"
-done || true
-
 # Run target late_command
 in-target bash /scripts/target.sh "$categories" "$passwd_username"
+
+
+# move over config
+data_path="/cdrom/data/config/."
+if [ -d "$data_path" ]; then
+	cp -rf "$data_path" "/target/config"
+fi
+
+# move over config-private
+data_path="/cdrom/data/config-private/."
+if [ -d "$data_path" ]; then
+	cp -rf "$data_path" "/target/config-private"
+fi
+
+# TODO: would be nice if I had a custom menu so you could select a machine by name OR roles (maybe list roles as all states...)
+# install config
+in-target bash /config/scripts/install --primaryUser "$passwd_username" --machine "$config_machine"

@@ -18,5 +18,17 @@ case "$machine" in
 		;;
 esac
 
+# machine name
+case "$machine" in
+	desktop) config_machine="desktop-william";;
+	laptop) config_machine="laptop-william";;
+	server-data) config_machine="server-data";;
+	*)
+		echo "Unknown machine: $machine"
+		echo "Must add this machine to the scripts..."
+		false
+		;;
+esac
+
 unset machine_file
 unset machine
