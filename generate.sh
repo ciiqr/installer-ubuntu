@@ -66,9 +66,7 @@ set_cli_args_default
 parse_cli_args "$@" || exit $?
 
 BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
-# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.10/ubuntu-16.10-server-amd64.iso"
-# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/17.04/ubuntu-17.04-server-amd64.iso"
-# BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/daily-live/current/bionic-desktop-amd64.iso"
+# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/17.10/ubuntu-17.10.1-server-amd64.iso"
 BUILD_ISO_PATH="original.iso"
 BUILD_ISO_MOUNT_DIR="iso-temp"
 
