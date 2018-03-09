@@ -116,7 +116,7 @@ rmdir "$BUILD_ISO_MOUNT_DIR"
 # Transfer categories to image
 sudo cp -r "../categories" "$BUILD_IMAGE_DIR/categories"
 sudo cp -r "../scripts" "$BUILD_IMAGE_DIR/scripts"
-sudo cp -r "../data" "$BUILD_IMAGE_DIR/data"
+mkdir -p "$BUILD_IMAGE_DIR/data"
 
 if [[ -d "$configDir" ]]; then
     sudo rsync -ra --delete "$configDir/" "$BUILD_IMAGE_DIR/data/config"

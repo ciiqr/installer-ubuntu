@@ -11,19 +11,6 @@ passwd_username="`debconf-get passwd/username`"
 # Copy all (target) scripts to target
 cp -r /cdrom/scripts/target /target/scripts
 
-# Make all scripts executable (TODO: Likely unnecessary)
-in-target chmod -R 0777 /scripts
-
-# Copy data over... (all categories data folder get merged into 1, so you can override the category file of a previous category)
-target_dir="/target/data"
-mkdir -p "$target_dir"
-for category in $categories; do
-	category_data_path="/cdrom/data/$category/."
-	if [ -d "$category_data_path" ]; then
-		cp -rf "$category_data_path" "$target_dir"
-	fi
-done || true
-
 # Run target late_command
 in-target bash /scripts/target.sh "$categories" "$passwd_username"
 
