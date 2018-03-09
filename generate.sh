@@ -127,7 +127,7 @@ if [[ -d "$privateConfigDir" ]]; then
 fi
 
 # Generate categories
-sudo tee "$BUILD_IMAGE_DIR/categories/generated-preseed-base.inc" > /dev/null <<EOF
+sudo tee "$BUILD_IMAGE_DIR/categories/generated-preseed.inc" > /dev/null <<EOF
 
 ### Debug only options
 d-i cdrom-detect/eject boolean $cdrom_auto_eject
@@ -165,11 +165,10 @@ EOF
 #   - ramdisk_size root=/dev/ram auto=true debconf/priority=critical
 # TODO: debconf/priority=critical is an issue for my laptop because I have to manually connect to wifi
 # Docs: http://www.syslinux.org/doc/syslinux.txt
-for category_path in ../categories/preseed-*.cfg; do
+# TODO: this can be further cleaned up
+for category_path in ../categories/preseed.cfg; do
     file="`basename $category_path`"
-    # Remove prefix and suffix on the filename
-    label="${file#preseed-}"
-    label="${label%.cfg}"
+    label="ubuntu"
 
     menu_label="Install ${label^}"
     kernel_args="file=/cdrom/categories/$file initrd=/install/initrd.gz noprompt auto=true quiet $IMAGE_ADDITIONAL_KERNEL_OPTIONS"
