@@ -18,4 +18,4 @@ if [ -d "$data_path" ]; then
 fi
 
 # install config
-in-target bash /config/scripts/install --primaryUser "$primaryUser" --machine "$machine"
+in-target bash /config/scripts/install --primaryUser "$primaryUser" --machine "$machine" --roles "$roles"
