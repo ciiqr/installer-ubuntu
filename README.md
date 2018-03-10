@@ -1,5 +1,3 @@
-# machines
-## To setup a new machine
-- create categories/preseed-MACHINE.cfg
-- create categories/preseed-MACHINE.inc
-- modify scripts/inc/setup-categories.sh
+# installer-ubuntu
+
+Installs ubuntu with my custom configuration (see [ciiqr/config](https://github.com/ciiqr/config))
