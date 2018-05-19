@@ -5,9 +5,10 @@
 
 set_cli_args_default()
 {
-    buildMode=''
     configDir="/config"
     privateConfigDir="/config-private"
+    runTest=''
+    buildMode=''
 }
 
 parse_cli_args()
@@ -23,6 +24,9 @@ parse_cli_args()
             --privateConfigDir)
                 privateConfigDir="${2%/}"
                 shift
+            ;;
+            --test)
+                runTest="true"
             ;;
             --build)
                 local input_build_mode="${2,,}"
@@ -52,6 +56,10 @@ parse_cli_args()
     done
 }
 
+forrealz(){ realpath "$@" 2>/dev/null || readlink -f "$@" 2>/dev/null || perl -e 'use File::Basename; use Cwd "abs_path"; print abs_path(@ARGV[0]);' -- "$@"; }
+srcDir="$(dirname "$(forrealz "${BASH_SOURCE[0]}")")"
+# TODO: use srcDir so we don't have to be so dumb anymore
+
 set_cli_args_default
 parse_cli_args "$@" || exit $?
 
@@ -63,7 +71,7 @@ BUILD_ISO_MOUNT_DIR="iso-temp"
 BUILD_IMAGE_DIR="image"
 IMAGE_ISOLINUX_MAIN_CONFIG="$BUILD_IMAGE_DIR/isolinux/isolinux.cfg"
 ISO_LABEL="installer-ubuntu"
-ISO_PATH="../custom.iso"
+ISO_PATH="$ISO_LABEL.iso"
 
 if [[ "$buildMode" == "debug" ]]; then
     IMAGE_ADDITIONAL_KERNEL_OPTIONS="DEBCONF_DEBUG=5 debconf/priority=critical"
@@ -192,3 +200,7 @@ sudo xorriso -as mkisofs -r -V "$ISO_LABEL" \
     -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 \
     -boot-info-table -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot \
     -isohybrid-gpt-basdat -o "$ISO_PATH" "$BUILD_IMAGE_DIR"
+
+if [[ "$runTest" == "true" ]]; then
+    "$srcDir/test.sh"
+fi
