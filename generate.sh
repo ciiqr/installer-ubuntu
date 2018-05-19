@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
 # usage:
-# ./generate.sh --default-machine server-data --build d
+# ./generate.sh --build d
 
 set_cli_args_default()
 {
-    BUILD_MODE=''
-    IMAGE_DEFAULT_MACHINE="server-data"
-    private_config_dir=''
+    buildMode=''
     configDir="/config"
     privateConfigDir="/config-private"
 }
@@ -26,27 +24,19 @@ parse_cli_args()
                 privateConfigDir="${2%/}"
                 shift
             ;;
-            --private-config)
-                private_config_dir="$(readlink -f "$2")"
-                shift
-            ;;
-            --default-machine)
-                IMAGE_DEFAULT_MACHINE="$2"
-                shift
-            ;;
             --build)
                 local input_build_mode="${2,,}"
 
                 for mode in debug release; do
                     case "$mode" in
                         $input_build_mode*)
-                            BUILD_MODE="$mode"
+                            buildMode="$mode"
                             break
                         ;;
                     esac
                 done
 
-                if [[ -z "$BUILD_MODE" || -z "$input_build_mode" ]]; then
+                if [[ -z "$buildMode" ]]; then
                     echo $0: Unrecognized build mode \"$2\"
                     return 1
                 fi
@@ -65,17 +55,17 @@ parse_cli_args()
 set_cli_args_default
 parse_cli_args "$@" || exit $?
 
-BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
-# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/17.10/ubuntu-17.10.1-server-amd64.iso"
-BUILD_ISO_PATH="original.iso"
+# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
+# BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/18.04/ubuntu-18.04-live-server-amd64.iso" # subiquity
+BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/ubuntu/releases/18.04/release/ubuntu-18.04-server-amd64.iso" # di
+BUILD_ISO_PATH="original/${BUILD_ISO_DOWLOAD_URL##*/}"
 BUILD_ISO_MOUNT_DIR="iso-temp"
-
 BUILD_IMAGE_DIR="image"
-
-IMAGE_ISOLINUX_MENU_CONFIG="$BUILD_IMAGE_DIR/isolinux/txt.cfg"
 IMAGE_ISOLINUX_MAIN_CONFIG="$BUILD_IMAGE_DIR/isolinux/isolinux.cfg"
+ISO_LABEL="installer-ubuntu"
+ISO_PATH="../custom.iso"
 
-if [[ "$BUILD_MODE" == "debug" ]]; then
+if [[ "$buildMode" == "debug" ]]; then
     IMAGE_ADDITIONAL_KERNEL_OPTIONS="DEBCONF_DEBUG=5 debconf/priority=critical"
     cdrom_auto_eject="false"
 else # release
@@ -83,11 +73,13 @@ else # release
     cdrom_auto_eject="true"
 fi
 
-ISO_LABEL="WAV Custom Install CD"
-ISO_PATH="../custom.iso"
+# Remove anything from a previous build
+sudo rm -rf custom.iso build/image
 
-# Make and go to build dir
-[[ -d build ]] || mkdir build
+# Make sure build directories exist
+[[ -d build/original ]] || mkdir -p build/{original,image}
+
+# Go to build directory
 cd build
 
 # Download iso if we don't have it...
@@ -104,7 +96,7 @@ sudo mount -o loop,ro "$BUILD_ISO_PATH" "$BUILD_ISO_MOUNT_DIR"
 sudo rsync -ra --delete "$BUILD_ISO_MOUNT_DIR/" "$BUILD_IMAGE_DIR"
 
 # Unmount iso
-# keeps trying until it unmounts successfully... Which happens often cause the dir is still transfering
+# keeps trying until it unmounts successfully... Which happens often cause the dir is still transferring
 until sudo umount "$BUILD_ISO_MOUNT_DIR" 2> /dev/null; do
     echo "Failed unmounting, trying again"
     sleep 0.1
@@ -113,9 +105,9 @@ done
 rmdir "$BUILD_ISO_MOUNT_DIR"
 
 
-# Transfer categories to image
-sudo cp -r "../categories" "$BUILD_IMAGE_DIR/categories"
-sudo cp -r "../scripts" "$BUILD_IMAGE_DIR/scripts"
+# Transfer preseed to image
+sudo rsync -ra "../preseed/" "$BUILD_IMAGE_DIR/preseed"
+sudo rsync -ra "../scripts/" "$BUILD_IMAGE_DIR/scripts"
 sudo mkdir -p "$BUILD_IMAGE_DIR/data"
 
 if [[ -d "$configDir" ]]; then
@@ -126,8 +118,8 @@ if [[ -d "$privateConfigDir" ]]; then
     sudo rsync -ra --delete "$privateConfigDir/" "$BUILD_IMAGE_DIR/data/config-private"
 fi
 
-# Generate categories
-sudo tee "$BUILD_IMAGE_DIR/categories/generated-preseed.inc" > /dev/null <<EOF
+# Generate preseed
+sudo tee "$BUILD_IMAGE_DIR/preseed/generated-preseed.inc" > /dev/null <<EOF
 
 ### Debug only options
 d-i cdrom-detect/eject boolean $cdrom_auto_eject
@@ -137,10 +129,25 @@ EOF
 
 # Change bootloader options
 
-# TODO: This is a temporary solution, I need to reconfigure grub properly...
+# Add preseed to the menu
+# Docs: http://www.syslinux.org/doc/syslinux.txt
+label="ubuntu"
+menu_label="Install ${label^}"
+initrd="/install/initrd.gz"
+vmlinuz="/install/vmlinuz"
+kernel_args="file=/cdrom/preseed/preseed-main.cfg initrd=$initrd noprompt auto=true quiet $IMAGE_ADDITIONAL_KERNEL_OPTIONS"
+
+# Configure (legacy) bootloader menu
+sudo tee "$BUILD_IMAGE_DIR/isolinux/txt.cfg" > /dev/null <<EOF
+default $label
+label $label
+    menu label ^$menu_label
+    kernel $vmlinuz
+    append  $kernel_args ---
+EOF
+
+# Configure (efi) bootloader menu
 sudo tee "$BUILD_IMAGE_DIR/boot/grub/grub.cfg" > /dev/null <<EOF
-
-
 if loadfont /boot/grub/font.pf2 ; then
     set gfxmode=auto
     insmod efi_gop
@@ -152,63 +159,12 @@ fi
 set menu_color_normal=white/black
 set menu_color_highlight=black/light-gray
 
-EOF
-
-
-# TODO: Consider simply overridding the menu options entirely... (Refactor if I'm going to keep this...)
-sudo tee "$IMAGE_ISOLINUX_MENU_CONFIG" > /dev/null <<EOF
-default TO_BE_REPLACED
-EOF
-
-# Append all categories to the menu
-# TODO: Consider whether we need the following:
-#   - ramdisk_size root=/dev/ram auto=true debconf/priority=critical
-# TODO: debconf/priority=critical is an issue for my laptop because I have to manually connect to wifi
-# Docs: http://www.syslinux.org/doc/syslinux.txt
-# TODO: this can be further cleaned up
-for category_path in ../categories/preseed.cfg; do
-    file="`basename $category_path`"
-    label="ubuntu"
-
-    menu_label="Install ${label^}"
-    kernel_args="file=/cdrom/categories/$file initrd=/install/initrd.gz noprompt auto=true quiet $IMAGE_ADDITIONAL_KERNEL_OPTIONS"
-
-    # Append to (legacy) bootloader menu
-    sudo tee -a "$IMAGE_ISOLINUX_MENU_CONFIG" > /dev/null <<EOF
-
-label $label
-    menu label ^$menu_label
-    kernel /install/vmlinuz
-    append  $kernel_args ---
-
-EOF
-
-    # Append to (efi) bootloader menu
-    sudo tee -a "$BUILD_IMAGE_DIR/boot/grub/grub.cfg" > /dev/null <<EOF
-
 menuentry "$menu_label" {
     set gfxpayload=keep
-    linux   /install/vmlinuz  $kernel_args ---
-    initrd  /install/initrd.gz
+    linux   $vmlinuz  $kernel_args ---
+    initrd  $initrd
 }
-
 EOF
-
-done
-
-# Set default boot option
-if [[ ! -z "$IMAGE_DEFAULT_MACHINE" ]]; then
-    # TODO: Replace with replace_or_append if applicable...
-    # replace_or_append()
-    # {
-    #     match_line="$2"
-    #     replace_line="$3"
-    #     # TODO: I would like to be able to replace with some matched part... (untested)
-    #     # TODO: May also be good to only replace the first match... if reasonable...
-    #     sed -i '/^'"$match_line"'/{h;s/.*/'"$replace_line"'/};${x;/^$/{s//'"$replace_line"'/;H};x}' "$1"
-    # }
-    sudo sed 's/default .*/default '"$IMAGE_DEFAULT_MACHINE"'/' -i "$IMAGE_ISOLINUX_MENU_CONFIG"
-fi
 
 # Comment out default ... (if it's something like vesamenu.c32 then it just gets in the way..)
 sudo sed 's/^\(default .*\)/# \1/' -i "$IMAGE_ISOLINUX_MAIN_CONFIG"
@@ -217,7 +173,7 @@ sudo sed 's/^\(default .*\)/# \1/' -i "$IMAGE_ISOLINUX_MAIN_CONFIG"
 sudo sed 's/prompt 0/prompt 1/' -i "$IMAGE_ISOLINUX_MAIN_CONFIG"
 
 # Change default timeout
-if [[ "$BUILD_MODE" == "debug" ]]; then
+if [[ "$buildMode" == "debug" ]]; then
     # Basically instant timeout
     sudo sed 's/^timeout .*/timeout 1/' -i "$IMAGE_ISOLINUX_MAIN_CONFIG"
 else # release
@@ -227,7 +183,7 @@ fi
 
 # Select english as the default language (for the bootloader...)
 # NOTE: Unfortunately this doesn't stop the lang prompt from appearing
-echo en | sudo tee "$BUILD_IMAGE_DIR/isolinux/lang" > /dev/null 
+echo en | sudo tee "$BUILD_IMAGE_DIR/isolinux/lang" > /dev/null
 
 
 # Generate iso
