@@ -56,6 +56,20 @@ parse_cli_args()
     done
 }
 
+quiet()
+{
+    declare out="$(mktemp)"
+    declare ret=0
+
+    if ! "$@" </dev/null >"$out" 2>&1; then
+        ret=1
+        cat "$out" >&2
+    fi
+
+    rm -f "$out"
+    return "$ret"
+}
+
 forrealz(){ realpath "$@" 2>/dev/null || readlink -f "$@" 2>/dev/null || perl -e 'use File::Basename; use Cwd "abs_path"; print abs_path(@ARGV[0]);' -- "$@"; }
 srcDir="$(dirname "$(forrealz "${BASH_SOURCE[0]}")")"
 # TODO: use srcDir so we don't have to be so dumb anymore
@@ -195,7 +209,7 @@ echo en | sudo tee "$BUILD_IMAGE_DIR/isolinux/lang" > /dev/null
 
 
 # Generate iso
-sudo xorriso -as mkisofs -r -V "$ISO_LABEL" \
+quiet sudo xorriso -as mkisofs -r -V "$ISO_LABEL" \
     -isohybrid-mbr image/isolinux/isolinux.bin \
     -c isolinux/boot.cat -b isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 \
     -boot-info-table -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot \
