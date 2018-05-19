@@ -10,7 +10,7 @@
 		{
 			"path": "build",
 			"folder_exclude_patterns":[
-				"categories",
+				"preseed",
 				"data",
 				"scripts",
 			]
