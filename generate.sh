@@ -72,7 +72,6 @@ quiet()
 
 forrealz(){ realpath "$@" 2>/dev/null || readlink -f "$@" 2>/dev/null || perl -e 'use File::Basename; use Cwd "abs_path"; print abs_path(@ARGV[0]);' -- "$@"; }
 srcDir="$(dirname "$(forrealz "${BASH_SOURCE[0]}")")"
-# TODO: use srcDir so we don't have to be so dumb anymore
 
 set_cli_args_default
 parse_cli_args "$@" || exit $?
@@ -95,8 +94,11 @@ else # release
     cdrom_auto_eject="true"
 fi
 
+# make sure we're in the project dir...
+cd "$srcDir"
+
 # Remove anything from a previous build
-sudo rm -rf custom.iso build/image
+sudo rm -rf "build/$ISO_PATH" "build/image"
 
 # Make sure build directories exist
 [[ -d build/original ]] || mkdir -p build/{original,image}
