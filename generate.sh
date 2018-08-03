@@ -1,14 +1,26 @@
 #!/usr/bin/env bash
 
-# usage:
-# ./generate.sh --build d
+usage()
+{
+    echo "usage:"
+    echo "  $0 --debug"
+    echo "  $0 --debug --test"
+    echo "  $0 --configDir <path> --privateConfigDir <path>"
+    echo ""
+    echo "Options:"
+    echo "  -h --help                   Show this screen."
+    echo "  --test                      After building, test the iso by running it in virtualbox."
+    echo "  --debug                     Perform a debug build (changes a few options to make testing/debugging issues easier)."
+    echo "  --configDir <path>          The path to include config from."
+    echo "  --privateConfigDir <path>   The path to include private config from."
+}
 
 set_cli_args_default()
 {
     configDir="/config"
     privateConfigDir="/config-private"
     runTest=''
-    buildMode=''
+    buildMode='release'
 }
 
 parse_cli_args()
@@ -28,27 +40,16 @@ parse_cli_args()
             --test)
                 runTest="true"
             ;;
-            --build)
-                local input_build_mode="${2,,}"
-
-                for mode in debug release; do
-                    case "$mode" in
-                        $input_build_mode*)
-                            buildMode="$mode"
-                            break
-                        ;;
-                    esac
-                done
-
-                if [[ -z "$buildMode" ]]; then
-                    echo $0: Unrecognized build mode \"$2\"
-                    return 1
-                fi
-
-                shift
+            --debug)
+                buildMode="debug"
+            ;;
+            -h|--help)
+                usage
+                exit 0
             ;;
             *)
-                echo $0: Unrecognized option \"$1\"
+                echo "$0: Unrecognized option \"$1\""
+                usage
                 return 1
             ;;
         esac
@@ -70,6 +71,14 @@ quiet()
     return "$ret"
 }
 
+# TODO: maybe there's a less dumb way
+if ! type sudo 2>/dev/null; then
+    sudo()
+    {
+        "$@"
+    }
+fi
+
 forrealz(){ realpath "$@" 2>/dev/null || readlink -f "$@" 2>/dev/null || perl -e 'use File::Basename; use Cwd "abs_path"; print abs_path(@ARGV[0]);' -- "$@"; }
 srcDir="$(dirname "$(forrealz "${BASH_SOURCE[0]}")")"
 
@@ -78,9 +87,8 @@ parse_cli_args "$@" || exit $?
 
 # BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/16.04/ubuntu-16.04.4-server-amd64.iso"
 # BUILD_ISO_DOWLOAD_URL="http://releases.ubuntu.com/18.04/ubuntu-18.04-live-server-amd64.iso" # subiquity
-BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/ubuntu/releases/18.04/release/ubuntu-18.04-server-amd64.iso" # di
+BUILD_ISO_DOWLOAD_URL="http://cdimage.ubuntu.com/ubuntu/releases/18.04/release/ubuntu-18.04.1-server-amd64.iso" # di
 BUILD_ISO_PATH="original/${BUILD_ISO_DOWLOAD_URL##*/}"
-BUILD_ISO_MOUNT_DIR="iso-temp"
 BUILD_IMAGE_DIR="image"
 IMAGE_ISOLINUX_MAIN_CONFIG="$BUILD_IMAGE_DIR/isolinux/isolinux.cfg"
 ISO_LABEL="installer-ubuntu"
@@ -106,28 +114,15 @@ sudo rm -rf "build/$ISO_PATH" "build/image"
 # Go to build directory
 cd build
 
-# Download iso if we don't have it...
-if [[ ! -f "$BUILD_ISO_PATH" ]]; then
+# Download iso if we don't have it... (or there's a blank file, because of a past run that failed to download the file)
+if [[ ! -s "$BUILD_ISO_PATH" ]]; then
+    # TODO: consider supporting curl also...
     wget "$BUILD_ISO_DOWLOAD_URL" -O "$BUILD_ISO_PATH"
 fi
 
-
-# Mount iso
-mkdir -p "$BUILD_ISO_MOUNT_DIR"
-sudo mount -o loop,ro "$BUILD_ISO_PATH" "$BUILD_ISO_MOUNT_DIR"
-
-# Copy files from iso
-sudo rsync -ra --delete "$BUILD_ISO_MOUNT_DIR/" "$BUILD_IMAGE_DIR"
-
-# Unmount iso
-# keeps trying until it unmounts successfully... Which happens often cause the dir is still transferring
-until sudo umount "$BUILD_ISO_MOUNT_DIR" 2> /dev/null; do
-    echo "Failed unmounting, trying again"
-    sleep 0.1
-done
-
-rmdir "$BUILD_ISO_MOUNT_DIR"
-
+# copy files from iso
+quiet sudo xorriso -osirrox on -indev "$BUILD_ISO_PATH" -extract / "./$BUILD_IMAGE_DIR"
+sudo chmod -R +w "./$BUILD_IMAGE_DIR"
 
 # Transfer preseed to image
 sudo rsync -ra "../preseed/" "$BUILD_IMAGE_DIR/preseed"
