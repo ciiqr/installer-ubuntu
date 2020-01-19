@@ -7,6 +7,6 @@ Installs ubuntu with my custom configuration (see [ciiqr/config](https://github.
 # build
 docker build -t installer-ubuntu .
 
-# run (ie. for windows)
-docker run -v /c/config:/config -v /c/config-private:/config-private -v /c/Users/william/Dropbox/Projects/installer-ubuntu:/app -t installer-ubuntu
+# run
+docker run -v /c/config:/config -v /c/config-private:/config-private -v ~/Projects/installer-ubuntu:/app -t installer-ubuntu
 ```
