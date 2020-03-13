@@ -1,4 +1,3 @@
-
 # TODO: Probably want a few of these with different configurations (or just a script to configure partitioning...)
 # TODO: partman/early? # d-i partman/early_command string command to run
 

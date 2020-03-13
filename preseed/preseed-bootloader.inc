@@ -1,4 +1,3 @@
-
 # TODO: Go through everything below this...
 ### Boot loader installation
 # Grub is the default boot loader (for x86). If you want lilo installed
