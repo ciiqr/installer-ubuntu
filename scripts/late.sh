@@ -8,13 +8,13 @@ echo "===================== ran late.sh ====================="
 # move over config
 data_path="/cdrom/data/config/."
 if [ -d "$data_path" ]; then
-	cp -rf "$data_path" "/target/config"
+    cp -rf "$data_path" "/target/config"
 fi
 
 # move over config-private
 data_path="/cdrom/data/config-private/."
 if [ -d "$data_path" ]; then
-	cp -rf "$data_path" "/target/config-private"
+    cp -rf "$data_path" "/target/config-private"
 fi
 
 # install config

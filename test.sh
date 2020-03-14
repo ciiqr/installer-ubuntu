@@ -17,14 +17,14 @@ VBoxManage createvm --name "$vm" --ostype "Ubuntu_64" --register >/dev/null 2>&1
 
 # Add a SATA controller with the dynamic disk attached.
 VBoxManage storagectl "$vm" --name "SATA Controller" --add sata \
-	--controller IntelAHCI 2>/dev/null
+    --controller IntelAHCI 2>/dev/null
 VBoxManage storageattach "$vm" --storagectl "SATA Controller" --port 0 \
-	--device 0 --type hdd --medium "$vm.vdi" 2>/dev/null
+    --device 0 --type hdd --medium "$vm.vdi" 2>/dev/null
 
 # Add an IDE controller with a DVD drive attached, and the install ISO inserted into the drive:
 VBoxManage storagectl "$vm" --name "IDE Controller" --add ide 2>/dev/null
 VBoxManage storageattach "$vm" --storagectl "IDE Controller" --port 0 \
-	--device 0 --type dvddrive --medium "$isoPath" 2>/dev/null
+    --device 0 --type dvddrive --medium "$isoPath" 2>/dev/null
 
 # Misc system settings.
 VBoxManage modifyvm "$vm" --ioapic on
@@ -53,7 +53,7 @@ echo "==> vm shutting down"
 # Destroy
 # TODO: I'd like a way of checking if it's locked... haven't found anything that works yet
 until VBoxManage unregistervm "$vm" --delete >/dev/null 2>&1; do
-	sleep 1
+    sleep 1
 done
 
 echo "==> vm destroyed"
